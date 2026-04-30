@@ -10,12 +10,6 @@
 
 ---
 
-## 🌐 Live Demo
-
-👉 **[gorickroot.github.io/Sentimentlens](https://gorickroot.github.io/Sentimentlens)**
-
----
-
 ## ✨ What It Does
 
 SentimentLens runs a full NLP pipeline directly in your browser — no backend, no API key, no data ever leaves your device.
