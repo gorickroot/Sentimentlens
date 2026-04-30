@@ -4,7 +4,7 @@
 
 ![Status](https://img.shields.io/badge/status-live-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![Models](https://img.shields.io/badge/models-DistilBERT%20%7C%20RoBERTa-8b5cf6)
+![Models](https://img.shields.io/badge/models-DistilBERT%20%7C%20BERT-8b5cf6)
 ![Zero API](https://img.shields.io/badge/API%20key-not%20required-success)
 ![Works Offline](https://img.shields.io/badge/offline-capable-orange)
 
@@ -12,13 +12,34 @@
 
 ## 🌐 Live Demo
 
-👉 **[gorickroot.github.io/sentimentlens](https://gorickroot.github.io/sentimentlens)**
+👉 **[gorickroot.github.io/Sentimentlens](https://gorickroot.github.io/Sentimentlens)**
 
 ---
 
-## 📸 Preview
+## 📸 Screenshots
 
-![SentimentLens Preview](./preview.png)
+### Hero — Input Interface
+![Hero](./screenshots/preview-hero.png)
+
+---
+
+### 😤 Angry Review → Anger · Complaint · High Urgency
+![Anger Result](./screenshots/preview-anger.png)
+
+---
+
+### 🆘 Support Ticket → Disgust · Complaint · Medium Urgency
+![Disgust Result](./screenshots/preview-disgust.png)
+
+---
+
+### 😄 Happy Post → Joy · Praise · Low Urgency
+![Joy Result](./screenshots/preview-joy.png)
+
+---
+
+### 🚨 Urgent Complaint → Anger · Complaint · Critical
+![Critical Result](./screenshots/preview-critical.png)
 
 ---
 
@@ -69,8 +90,8 @@ Download index.html → double-click → runs instantly in any browser
 
 ### Or clone it
 ```bash
-git clone https://github.com/gorickroot/sentimentlens.git
-cd sentimentlens
+git clone https://github.com/gorickroot/Sentimentlens.git
+cd Sentimentlens
 open index.html
 ```
 
@@ -96,11 +117,16 @@ No `npm install`. No build step. No config. Just open and go.
 ## 📂 Project Structure
 
 ```
-sentimentlens/
+Sentimentlens/
 │
-├── index.html      ← Entire app lives here (models + UI + logic)
-├── README.md       ← You're reading it
-└── preview.png     ← Screenshot for README / portfolio
+├── index.html           ← Entire app (models + UI + logic)
+├── README.md            ← You're reading it
+└── screenshots/
+    ├── preview-hero.png
+    ├── preview-anger.png
+    ├── preview-disgust.png
+    ├── preview-joy.png
+    └── preview-critical.png
 ```
 
 ---
@@ -115,46 +141,24 @@ sentimentlens/
 
 ---
 
-## 🧪 Example Inputs to Try
-
-**Angry review:**
-```
-I've been a loyal customer for 3 years and this is absolutely disgraceful.
-My order arrived broken AGAIN and customer service keeps giving me the runaround.
-```
-
-**Urgent support ticket:**
-```
-URGENT: Our entire production system is down. We are losing thousands per minute
-and your support line has had me on hold for 45 minutes. Fix this IMMEDIATELY.
-```
-
-**Happy post:**
-```
-Just got my new headphones and WOW. Sound quality is incredible, delivery was
-super fast, packaging was beautiful. 10/10 would recommend to absolutely everyone!
-```
-
----
-
-## 📈 Roadmap
-
-- [ ] Batch mode — paste multiple texts, analyse all at once
-- [ ] CSV upload — run analysis across hundreds of rows
-- [ ] Export results as PDF / CSV
-- [ ] Trend dashboard — chart sentiment over time
-- [ ] Chrome extension — analyse selected text on any page
-- [ ] Multi-language support (Arabic, Spanish, French)
-- [ ] Python/Flask backend with full BERT + spaCy pipeline
-
----
-
 ## 🌐 Works In
 
 ![Chrome](https://img.shields.io/badge/Chrome-✓-green)
 ![Edge](https://img.shields.io/badge/Edge-✓-green)
 ![Firefox](https://img.shields.io/badge/Firefox-✓-green)
 ![Safari](https://img.shields.io/badge/Safari-✓-green)
+
+---
+
+## 📈 Roadmap
+
+- [ ] Batch mode — paste multiple texts, analyse all at once
+- [ ] CSV upload — analyse hundreds of rows
+- [ ] Export results as PDF / CSV
+- [ ] Trend dashboard — chart sentiment over time
+- [ ] Chrome extension — analyse any selected text on any page
+- [ ] Multi-language support (Arabic, Spanish, French)
+- [ ] Python/Flask backend with full BERT + spaCy pipeline
 
 ---
 
@@ -170,10 +174,6 @@ Building AI agents & automations 🤖 · Founding ZynthoAI
 [![Portfolio](https://img.shields.io/badge/Portfolio-gorickroot.github.io-2d6a4f?style=flat&logo=google-chrome&logoColor=white)](https://gorickroot.github.io)
 [![GitHub](https://img.shields.io/badge/GitHub-gorickroot-181717?style=flat&logo=github)](https://github.com/gorickroot)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-gorick--nath--aigeek-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/gorick-nath-aigeek)
-
----
-
-*This project is part of my developer portfolio. Feel free to fork and build on it!*
 
 ---
 
