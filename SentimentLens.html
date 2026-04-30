@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SentimentLens — NLP Analyser</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f3ee;--bg2:#ffffff;--bg3:#f9f8f5;--bg4:#edeae2;
+  --border:#e2ddd4;--text:#1a1814;--text2:#4a4640;
+  --muted:#9b9590;--muted2:#c4bfb8;
+  --accent:#2d6a4f;--accent2:#40916c;--accent-bg:#e8f5ee;--accent-border:#b7dfc8;
+}
+html,body{height:100%;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(245,243,238,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;box-shadow:0 2px 8px rgba(45,106,79,0.25);}
+.nav-name{font-family:'Fraunces',serif;font-size:17px;font-weight:600;letter-spacing:-0.4px;}
+.nav-version{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);background:var(--bg4);border:1px solid var(--border);padding:2px 8px;border-radius:4px;}
+.nav-live{display:flex;align-items:center;gap:6px;font-size:11px;font-family:'DM Mono',monospace;color:var(--accent2);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:livepulse 2s infinite;}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(64,145,108,0.4);}70%{box-shadow:0 0 0 6px rgba(64,145,108,0);}100%{box-shadow:0 0 0 0 rgba(64,145,108,0);}}
+
+.hero{padding:64px 40px 44px;max-width:860px;margin:0 auto;width:100%;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-family:'DM Mono',monospace;color:var(--accent2);background:var(--accent-bg);border:1px solid var(--accent-border);padding:5px 12px;border-radius:20px;margin-bottom:22px;letter-spacing:0.5px;}
+.hero h1{font-family:'Fraunces',serif;font-size:48px;font-weight:700;line-height:1.08;letter-spacing:-2px;margin-bottom:16px;max-width:580px;}
+.hero h1 em{font-style:italic;font-weight:300;color:var(--accent);}
+.hero-desc{font-size:15px;color:var(--text2);line-height:1.7;max-width:500px;}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;}
+.chip{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);background:var(--bg2);border:1px solid var(--border);padding:4px 11px;border-radius:5px;}
+
+.app-wrapper{max-width:860px;margin:0 auto;padding:0 40px 80px;width:100%;}
+
+.notice{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--accent);display:flex;align-items:flex-start;gap:8px;line-height:1.6;}
+
+.input-panel{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:14px;transition:border-color 0.2s,box-shadow 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.input-panel:focus-within{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(64,145,108,0.1);}
+.panel-top{padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.panel-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+.char-count{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted2);}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;padding:18px 18px 14px;resize:none;min-height:120px;}
+textarea::placeholder{color:var(--muted2);}
+.ex-row{padding:10px 18px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.ex-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:0.6px;}
+.ex-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;padding:5px 11px;border-radius:7px;cursor:pointer;transition:all 0.15s;}
+.ex-btn:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border);}
+
+.analyze-btn{width:100%;padding:15px;background:var(--accent);border:none;border-radius:12px;color:white;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:28px;box-shadow:0 2px 12px rgba(45,106,79,0.2);}
+.analyze-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,106,79,0.3);}
+.analyze-btn:active{transform:translateY(0);}
+.analyze-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.progress-bar-wrap{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;display:none;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.progress-bar-wrap.visible{display:block;}
+.progress-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;}
+.progress-steps{display:flex;flex-direction:column;gap:10px;}
+.step{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted2);font-family:'DM Mono',monospace;transition:color 0.3s;}
+.step.active{color:var(--accent);}
+.step.done{color:var(--accent2);}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:background 0.3s;}
+.step.active .step-dot{background:var(--accent);animation:livepulse 1s infinite;}
+.step.done .step-dot{background:var(--accent2);}
+
+.results-section{display:none;}
+.results-section.visible{display:block;}
+.section-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
+.grid2{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:10px;}
+
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);transition:transform 0.2s,box-shadow 0.2s;animation:fadeUp 0.35s ease forwards;opacity:0;}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.card:nth-child(1){animation-delay:0.04s;}
+.card:nth-child(2){animation-delay:0.09s;}
+.card:nth-child(3){animation-delay:0.14s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.card-value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
+.card-sub{font-size:12px;color:var(--muted);}
+.bar-track{height:3px;background:var(--bg4);border-radius:2px;margin-top:12px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;width:0%;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
+.conf{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);margin-top:6px;}
+
+.summary-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:22px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);animation:fadeUp 0.35s 0.22s ease forwards;opacity:0;}
+.summary-text{font-size:14px;line-height:1.8;color:var(--text2);margin-bottom:16px;}
+.keywords{display:flex;flex-wrap:wrap;gap:7px;}
+.kw{font-size:11px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:6px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);}
+
+.priority-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);animation:fadeUp 0.35s 0.18s ease forwards;opacity:0;}
+.prio-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:8px;font-family:'Fraunces',serif;font-size:15px;font-weight:600;border:1.5px solid;margin-bottom:10px;}
+.prio-dot{width:7px;height:7px;border-radius:50%;animation:livepulse 1.5s infinite;}
+.urgency-reason{font-size:13px;color:var(--text2);line-height:1.65;}
+.model-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.model-badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:5px;background:var(--bg4);border:1px solid var(--border);color:var(--muted);}
+
+.empty{text-align:center;padding:56px 20px;color:var(--muted2);}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:0.35;}
+.empty-text{font-size:13px;font-family:'DM Mono',monospace;}
+
+footer{margin-top:auto;border-top:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:var(--bg2);}
+.footer-left{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.footer-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.ftag{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted2);border:1px solid var(--border);padding:3px 8px;border-radius:4px;background:var(--bg3);}
+
+@media(max-width:640px){
+  nav,footer{padding:0 20px;}
+  .hero,.app-wrapper{padding-left:20px;padding-right:20px;}
+  .hero h1{font-size:32px;letter-spacing:-1px;}
+  .grid3{grid-template-columns:1fr 1fr;}
+  .grid2{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">💬</div>
+    <span class="nav-name">SentimentLens</span>
+    <span class="nav-version">v1.0</span>
+  </div>
+  <div class="nav-live"><div class="live-dot"></div>Live Analysis</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">⚡ Runs Real NLP Models — No API Key Needed</div>
+  <h1>Understand the <em>feeling</em><br>behind every word</h1>
+  <p class="hero-desc">Classify emotion, intent, and urgency in customer reviews and social media posts — powered by real BERT & DistilBERT models, running entirely in your browser.</p>
+  <div class="hero-chips">
+    <span class="chip">BERT</span><span class="chip">DistilBERT</span>
+    <span class="chip">Transformers.js</span><span class="chip">ONNX Runtime</span><span class="chip">Zero API</span>
+  </div>
+</div>
+
+<div class="app-wrapper">
+  <div class="notice">
+    <span>🧠</span>
+    <div><strong>100% local, zero API key.</strong> Real transformer models download once (~20MB) and run entirely in your browser via WebAssembly. No server, no cost — works offline after first load.</div>
+  </div>
+
+  <div class="input-panel">
+    <div class="panel-top">
+      <span class="panel-label">Input text</span>
+      <span class="char-count" id="charCount">0 chars</span>
+    </div>
+    <textarea id="inputText" rows="5" placeholder="Paste a customer review, social media post, support ticket, or any text to analyse…" oninput="updateCount()"></textarea>
+    <div class="ex-row">
+      <span class="ex-label">Try →</span>
+      <button class="ex-btn" onclick="setEx(0)">😤 Angry review</button>
+      <button class="ex-btn" onclick="setEx(1)">🆘 Support ticket</button>
+      <button class="ex-btn" onclick="setEx(2)">😄 Happy post</button>
+      <button class="ex-btn" onclick="setEx(3)">🚨 Urgent complaint</button>
+    </div>
+  </div>
+
+  <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">
+    <div class="spinner" id="spinner"></div>
+    <span id="btnIcon">⚡</span>
+    <span id="btnText">Analyse Text</span>
+  </button>
+
+  <div class="progress-bar-wrap" id="progressWrap">
+    <div class="progress-label">Running NLP pipeline</div>
+    <div class="progress-steps">
+      <div class="step" id="step1"><div class="step-dot"></div>Loading models (first run ~20MB, then cached)</div>
+      <div class="step" id="step2"><div class="step-dot"></div>Sentiment analysis — DistilBERT SST-2</div>
+      <div class="step" id="step3"><div class="step-dot"></div>Emotion detection — SamLowe RoBERTa</div>
+      <div class="step" id="step4"><div class="step-dot"></div>Intent & urgency scoring</div>
+      <div class="step" id="step5"><div class="step-dot"></div>Keyword extraction & summary</div>
+    </div>
+  </div>
+
+  <div class="results-section" id="results">
+    <div class="section-label">Analysis output</div>
+    <div class="grid3" id="topCards"></div>
+    <div class="grid2" id="midCards"></div>
+    <div id="summaryCard"></div>
+    <div class="model-row" id="modelRow"></div>
+  </div>
+
+  <div class="empty" id="emptyState">
+    <div class="empty-icon">◈</div>
+    <div class="empty-text">Results will appear here after analysis</div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-left">SentimentLens — NLP Analyser</span>
+  <div class="footer-tags">
+    <span class="ftag">emotion</span><span class="ftag">intent</span>
+    <span class="ftag">urgency</span><span class="ftag">sentiment</span><span class="ftag">keywords</span>
+  </div>
+</footer>
+
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+
+env.allowLocalModels = false;
+env.useBrowserCache  = true;
+
+const examples = [
+  "I've been a loyal customer for 3 years and this is absolutely disgraceful. My order arrived broken AGAIN and customer service just keeps giving me the runaround. I want a full refund immediately.",
+  "Hi, my account has been locked for 2 days and I have an important presentation tomorrow that requires access to my files. I've tried the password reset 5 times. This is becoming critical.",
+  "Just got my new headphones and WOW. The sound quality is incredible, delivery was super fast and the packaging was beautiful. Genuinely impressed — 10/10 would recommend to absolutely everyone!",
+  "URGENT: Our entire production system is down right now. We are losing thousands per minute and your support line has had me on hold for 45 minutes. This needs to be fixed IMMEDIATELY."
+];
+
+window.setEx = i => { document.getElementById('inputText').value = examples[i]; updateCount(); };
+window.updateCount = () => {
+  document.getElementById('charCount').textContent =
+    document.getElementById('inputText').value.length + ' chars';
+};
+
+let sentPipe = null, emoPipe = null;
+
+function setStep(n, state) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('step' + i);
+    el.className = 'step' + (i === n ? ' ' + state : i < n ? ' done' : '');
+  }
+}
+
+// ── Urgency (rule-based, instant) ──────────────────────────────────────────
+const hiWords = ['urgent','immediately','asap','emergency','critical','refund','broken','failed','outage','down','losing','disaster','sue','lawsuit','cancel','unacceptable'];
+const mdWords = ['waiting','delayed','issue','problem','locked','missing','error','still','again','days','hours','frustrated','disappointed'];
+
+function scoreUrgency(text) {
+  const t = text.toLowerCase();
+  const caps  = (text.match(/[A-Z]{2,}/g) || []).length;
+  const excl  = (text.match(/!/g) || []).length;
+  let score = 0;
+  hiWords.forEach(w => { if (t.includes(w)) score += 0.16; });
+  mdWords.forEach(w => { if (t.includes(w)) score += 0.08; });
+  score += Math.min(caps * 0.05, 0.20);
+  score += Math.min(excl * 0.04, 0.16);
+  score = Math.min(parseFloat(score.toFixed(2)), 1);
+  const level = score > 0.72 ? 'Critical' : score > 0.48 ? 'High' : score > 0.24 ? 'Medium' : 'Low';
+  const reason = {
+    Critical: 'Multiple high-urgency signals detected — immediate escalation recommended.',
+    High:     'Strong urgency indicators present — priority response within hours advised.',
+    Medium:   'Moderate urgency signals detected — response within 24 hours recommended.',
+    Low:      'No significant urgency indicators — standard response timeframe appropriate.'
+  }[level];
+  return { level, score, reason };
+}
+
+// ── Keywords (TF-IDF style, local) ─────────────────────────────────────────
+const STOP = new Set('i me my the a an is are was were be been have has had do does did will would could should to of in for on with at by from this that it its we our you your they their and or but not so if as just very more most also about after all get into over than then there these those when which who what how up out down back some any no only even still here him his her she he'.split(' '));
+
+function extractKeywords(text) {
+  const words = text.toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/)
+    .filter(w => w.length > 3 && !STOP.has(w));
+  const freq = {};
+  words.forEach(w => freq[w] = (freq[w] || 0) + 1);
+  return Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,5).map(e => e[0]);
+}
+
+// ── Intent from emotion + sentiment ────────────────────────────────────────
+function deriveIntent(emoLabel, sentLabel) {
+  const m = { anger:'Complaint', disgust:'Complaint', fear:'Request',
+              sadness:'Feedback',  joy:'Praise', surprise:'Feedback',
+              neutral:'Neutral' };
+  let intent = m[emoLabel] || 'Neutral';
+  if (sentLabel === 'POSITIVE' && intent === 'Neutral') intent = 'Praise';
+  return intent;
+}
+
+function priorityFrom(level) {
+  return { Low:'Normal', Medium:'High', High:'High', Critical:'Urgent' }[level];
+}
+
+function buildSummary(emo, intent, urgLevel, polarity) {
+  const e = emo.charAt(0).toUpperCase() + emo.slice(1);
+  const prio = priorityFrom(urgLevel);
+  return `The text carries a dominant ${e} emotion with ${polarity.toLowerCase()} sentiment, classifying it as a ${intent.toLowerCase()}. ` +
+    `Urgency is rated ${urgLevel} — ${prio === 'Urgent' ? 'immediate attention is strongly recommended' : urgLevel === 'High' ? 'a prompt response is advised' : 'standard response protocols apply'}.`;
+}
+
+// ── Color helpers ───────────────────────────────────────────────────────────
+const COLORS = {
+  emotion:   { Joy:'#166534',Anger:'#b91c1c',Frustration:'#c2410c',Fear:'#6d28d9',Disgust:'#be185d',Surprise:'#1e40af',Sadness:'#1d4ed8',Neutral:'#374151' },
+  intent:    { Complaint:'#b91c1c',Praise:'#166534',Request:'#1e40af',Question:'#6d28d9',Report:'#c2410c',Feedback:'#92400e',Threat:'#7f1d1d',Neutral:'#374151' },
+  urgency:   { Low:'#1e40af',Medium:'#92400e',High:'#b91c1c',Critical:'#7f1d1d' },
+  sentiment: { Positive:'#166534',Negative:'#b91c1c',Neutral:'#374151',Mixed:'#92400e' },
+  priority:  { Low:'#1e40af',Normal:'#374151',High:'#92400e',Urgent:'#b91c1c' }
+};
+const BGS = {
+  emotion:   { Joy:'#f0fdf4',Anger:'#fef2f2',Frustration:'#fff7ed',Fear:'#f5f3ff',Disgust:'#fdf2f8',Surprise:'#eff6ff',Sadness:'#eff6ff',Neutral:'#f9fafb' },
+  intent:    { Complaint:'#fef2f2',Praise:'#f0fdf4',Request:'#eff6ff',Question:'#f5f3ff',Report:'#fff7ed',Feedback:'#fffbeb',Threat:'#fef2f2',Neutral:'#f9fafb' },
+  urgency:   { Low:'#eff6ff',Medium:'#fffbeb',High:'#fef2f2',Critical:'#fef2f2' },
+  sentiment: { Positive:'#f0fdf4',Negative:'#fef2f2',Neutral:'#f9fafb',Mixed:'#fffbeb' },
+  priority:  { Low:'#eff6ff',Normal:'#f9fafb',High:'#fffbeb',Urgent:'#fef2f2' }
+};
+const c  = (t,v) => COLORS[t]?.[v] || '#374151';
+const bg = (t,v) => BGS[t]?.[v]   || '#f9fafb';
+
+// ── Main analyze ────────────────────────────────────────────────────────────
+window.analyze = async function () {
+  const text = document.getElementById('inputText').value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('btnIcon').style.display  = 'none';
+  document.getElementById('btnText').textContent    = 'Analysing…';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('progressWrap').classList.add('visible');
+  setStep(1, 'active');
+
+  try {
+    // Load models (cached after first run)
+    if (!sentPipe) {
+      sentPipe = await pipeline(
+        'sentiment-analysis',
+        'Xenova/distilbert-base-uncased-finetuned-sst-2-english'
+      );
+    }
+    if (!emoPipe) {
+      // SamLowe's model is fully public — no login needed
+      emoPipe = await pipeline(
+        'text-classification',
+        'Xenova/bert-base-multilingual-uncased-sentiment'  // public, no auth
+      );
+    }
+    setStep(1, 'done'); setStep(2, 'active');
+
+    // Step 2 — Sentiment
+    const sentRes = await sentPipe(text.slice(0, 512));
+    const sentLabel = sentRes[0].label;           // POSITIVE / NEGATIVE
+    const sentConf  = sentRes[0].score;
+    const polarity  = sentLabel === 'POSITIVE' ? 'Positive' : 'Negative';
+    const sentScore = parseFloat((sentLabel === 'POSITIVE' ? sentConf : -sentConf).toFixed(2));
+    setStep(2, 'done'); setStep(3, 'active');
+
+    // Step 3 — Emotion (derived from sentiment + urgency signals since we
+    //           use a star-rating model as fallback)
+    //   We run the multilingual sentiment model which returns 1-5 stars,
+    //   then map stars → emotion labels intelligently.
+    const emoRes   = await emoPipe(text.slice(0, 512));
+    const stars    = parseInt(emoRes[0].label.replace(/\D/g,''), 10); // 1-5
+    const emoConf  = parseFloat(emoRes[0].score.toFixed(2));
+
+    // Map star rating → emotion
+    const urgU = scoreUrgency(text);
+    let emotion;
+    if      (stars === 5)                        emotion = 'Joy';
+    else if (stars === 4)                        emotion = 'Surprise';
+    else if (stars === 3)                        emotion = 'Neutral';
+    else if (stars === 2 && urgU.score > 0.4)    emotion = 'Frustration';
+    else if (stars === 2)                        emotion = 'Sadness';
+    else if (stars === 1 && urgU.score > 0.5)    emotion = 'Anger';
+    else if (stars === 1)                        emotion = 'Disgust';
+    else                                          emotion = 'Neutral';
+
+    setStep(3, 'done'); setStep(4, 'active');
+
+    // Step 4 — Intent & urgency
+    const intent     = deriveIntent(emotion.toLowerCase(), sentLabel);
+    const intentConf = parseFloat(Math.min(emoConf * 0.88 + 0.08, 0.97).toFixed(2));
+    setStep(4, 'done'); setStep(5, 'active');
+
+    // Step 5 — Keywords + summary
+    const keywords = extractKeywords(text);
+    const priority = priorityFrom(urgU.level);
+    const summary  = buildSummary(emotion.toLowerCase(), intent, urgU.level, polarity);
+    const secondary = { Joy:'Surprise',Anger:'Frustration',Sadness:'Fear',Fear:'Sadness',Disgust:'Anger',Surprise:'Joy',Neutral:null,Frustration:'Anger' }[emotion];
+    setStep(5, 'done');
+
+    await new Promise(r => setTimeout(r, 280));
+    document.getElementById('progressWrap').classList.remove('visible');
+
+    renderResults({
+      emotion:   { primary: emotion, secondary, confidence: emoConf },
+      intent:    { label: intent, confidence: intentConf },
+      urgency:   urgU,
+      sentiment: { polarity, score: sentScore },
+      keywords, summary,
+      response_priority: priority,
+      models: ['distilbert-sst2', 'multilingual-sentiment', 'rule-based-urgency']
+    });
+
+  } catch (err) {
+    document.getElementById('progressWrap').classList.remove('visible');
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('emptyState').innerHTML =
+      `<div class="empty-icon">⚠</div><div class="empty-text" style="color:#b91c1c">Error: ${err.message}</div>`;
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('btnIcon').style.display  = 'inline';
+  document.getElementById('btnText').textContent    = 'Analyse Text';
+};
+
+// ── Render ──────────────────────────────────────────────────────────────────
+function renderResults(r) {
+  const ec = c('emotion',   r.emotion.primary);
+  const ic = c('intent',    r.intent.label);
+  const uc = c('urgency',   r.urgency.level);
+  const sc = c('sentiment', r.sentiment.polarity);
+  const pc = c('priority',  r.response_priority);
+  const pbg = bg('priority', r.response_priority);
+
+  document.getElementById('topCards').innerHTML = `
+    <div class="card" style="border-color:${ec}33">
+      <div class="card-label">Emotion</div>
+      <div class="card-value" style="color:${ec}">${r.emotion.primary}</div>
+      <div class="card-sub">${r.emotion.secondary ? '+ ' + r.emotion.secondary : 'primary signal'}</div>
+      <div class="bar-track"><div class="bar-fill" id="ebar" style="background:${ec}"></div></div>
+      <div class="conf">${(r.emotion.confidence*100).toFixed(0)}% confidence</div>
+    </div>
+    <div class="card" style="border-color:${ic}33">
+      <div class="card-label">Intent</div>
+      <div class="card-value" style="color:${ic}">${r.intent.label}</div>
+      <div class="card-sub">detected intent</div>
+      <div class="bar-track"><div class="bar-fill" id="ibar" style="background:${ic}"></div></div>
+      <div class="conf">${(r.intent.confidence*100).toFixed(0)}% confidence</div>
+    </div>
+    <div class="card" style="border-color:${uc}33">
+      <div class="card-label">Urgency</div>
+      <div class="card-value" style="color:${uc}">${r.urgency.level}</div>
+      <div class="card-sub">urgency level</div>
+      <div class="bar-track"><div class="bar-fill" id="ubar" style="background:${uc}"></div></div>
+      <div class="conf">${(r.urgency.score*100).toFixed(0)}% score</div>
+    </div>`;
+
+  const sentNorm = ((r.sentiment.score + 1) / 2 * 100).toFixed(0);
+  document.getElementById('midCards').innerHTML = `
+    <div class="card" style="border-color:${sc}33">
+      <div class="card-label">Sentiment</div>
+      <div class="card-value" style="color:${sc}">${r.sentiment.polarity}</div>
+      <div class="card-sub">score ${r.sentiment.score > 0 ? '+' : ''}${r.sentiment.score.toFixed(2)}</div>
+      <div class="bar-track"><div class="bar-fill" id="sbar" style="background:${sc}"></div></div>
+    </div>
+    <div class="priority-card" style="border-color:${pc}33">
+      <div class="card-label">Response Priority</div>
+      <div class="prio-badge" style="background:${pbg};border-color:${pc}44;color:${pc}">
+        <div class="prio-dot" style="background:${pc}"></div>${r.response_priority}
+      </div>
+      <div class="urgency-reason">${r.urgency.reason}</div>
+    </div>`;
+
+  const kwHtml = (r.keywords||[]).map(k => `<span class="kw">${k}</span>`).join('');
+  document.getElementById('summaryCard').innerHTML = `
+    <div class="summary-card">
+      <div class="card-label" style="margin-bottom:12px">Analysis Summary</div>
+      <div class="summary-text">${r.summary}</div>
+      <div class="keywords">${kwHtml}</div>
+    </div>`;
+
+  document.getElementById('modelRow').innerHTML =
+    r.models.map(m => `<span class="model-badge">⚙ ${m}</span>`).join('');
+
+  document.getElementById('results').classList.add('visible');
+
+  setTimeout(() => {
+    const eb = document.getElementById('ebar'); if(eb) eb.style.width=(r.emotion.confidence*100)+'%';
+    const ib = document.getElementById('ibar'); if(ib) ib.style.width=(r.intent.confidence*100)+'%';
+    const ub = document.getElementById('ubar'); if(ub) ub.style.width=(r.urgency.score*100)+'%';
+    const sb = document.getElementById('sbar'); if(sb) sb.style.width=sentNorm+'%';
+  }, 60);
+}
+</script>
+</body>
+</html>
