@@ -16,33 +16,6 @@
 
 ---
 
-## 📸 Screenshots
-
-### Hero — Input Interface
-![Hero](./screenshots/preview-hero.png)
-
----
-
-### 😤 Angry Review → Anger · Complaint · High Urgency
-![Anger Result](./screenshots/preview-anger.png)
-
----
-
-### 🆘 Support Ticket → Disgust · Complaint · Medium Urgency
-![Disgust Result](./screenshots/preview-disgust.png)
-
----
-
-### 😄 Happy Post → Joy · Praise · Low Urgency
-![Joy Result](./screenshots/preview-joy.png)
-
----
-
-### 🚨 Urgent Complaint → Anger · Complaint · Critical
-![Critical Result](./screenshots/preview-critical.png)
-
----
-
 ## ✨ What It Does
 
 SentimentLens runs a full NLP pipeline directly in your browser — no backend, no API key, no data ever leaves your device.
